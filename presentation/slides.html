@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevOps Case Study – CA-II Presentation | Bishwajeet S</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #0a0e1a;
+      --surface:  #111827;
+      --card:     #1a2235;
+      --accent1:  #6366f1;
+      --accent2:  #22d3ee;
+      --accent3:  #f59e0b;
+      --accent4:  #10b981;
+      --danger:   #ef4444;
+      --text:     #f1f5f9;
+      --muted:    #94a3b8;
+      --border:   rgba(255,255,255,0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* ── Slide container ── */
+    .slides { width: 100%; height: 100vh; position: relative; }
+    .slide {
+      position: absolute; inset: 0;
+      display: none; flex-direction: column; justify-content: center;
+      padding: 48px 72px;
+      background: var(--bg);
+      animation: fadeIn .4s ease;
+    }
+    .slide.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Navigation ── */
+    .nav {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 16px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 10px 24px;
+      z-index: 100;
+    }
+    .nav button {
+      background: none; border: none; color: var(--text);
+      font-size: 18px; cursor: pointer; padding: 4px 10px;
+      border-radius: 6px; transition: background .2s;
+    }
+    .nav button:hover { background: rgba(255,255,255,0.1); }
+    .slide-counter { font-size: 13px; color: var(--muted); min-width: 50px; text-align: center; }
+    .dot-nav { display: flex; gap: 8px; align-items: center; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--muted); cursor: pointer; transition: all .2s;
+    }
+    .dot.active { background: var(--accent1); width: 24px; border-radius: 4px; }
+
+    /* ── Typography ── */
+    .label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 12px;
+    }
+    h1 { font-size: 52px; font-weight: 800; line-height: 1.1; }
+    h2 { font-size: 36px; font-weight: 700; margin-bottom: 28px; }
+    .gradient-text {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .subtitle { font-size: 18px; color: var(--muted); margin-top: 14px; }
+    .author-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(99,102,241,.2); border: 1px solid rgba(99,102,241,.4);
+      border-radius: 50px; padding: 6px 18px; font-size: 14px; font-weight: 600;
+      color: var(--accent1); margin-top: 32px;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; font-size: 13px;
+    }
+
+    /* ── Cards & Grid ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px;
+      position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    }
+    .card.purple::before { background: linear-gradient(90deg, var(--accent1), transparent); }
+    .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+    .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+    .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+    .card.red::before    { background: linear-gradient(90deg, var(--danger), transparent); }
+
+    .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+    .card p, .card li { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+    .card ul { padding-left: 16px; }
+
+    .icon { font-size: 28px; margin-bottom: 12px; }
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px; margin-top: 8px;
+    }
+    .badge.purple { background: rgba(99,102,241,.2); color: var(--accent1); }
+    .badge.cyan   { background: rgba(34,211,238,.15); color: var(--accent2); }
+    .badge.green  { background: rgba(16,185,129,.15); color: var(--accent4); }
+    .badge.amber  { background: rgba(245,158,11,.15); color: var(--accent3); }
+
+    /* ── Pipeline flow ── */
+    .pipeline { display: flex; align-items: center; gap: 0; margin: 20px 0; }
+    .pipe-step {
+      flex: 1; background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 10px; text-align: center;
+      position: relative; font-size: 13px;
+    }
+    .pipe-step .step-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+    .pipe-step strong { display: block; font-size: 12px; margin-bottom: 4px; }
+    .pipe-step span { font-size: 11px; color: var(--muted); display: block; }
+    .arrow { color: var(--muted); font-size: 20px; padding: 0 6px; flex-shrink: 0; }
+    .pipe-step.purple { border-top: 2px solid var(--accent1); }
+    .pipe-step.blue   { border-top: 2px solid #3b82f6; }
+    .pipe-step.orange { border-top: 2px solid var(--accent3); }
+    .pipe-step.green  { border-top: 2px solid var(--accent4); }
+
+    /* ── Architecture diagram ── */
+    .arch { display: flex; flex-direction: column; gap: 12px; }
+    .arch-row { display: flex; align-items: center; justify-content: center; gap: 16px; }
+    .arch-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 18px; font-size: 13px; text-align: center;
+      white-space: nowrap;
+    }
+    .arch-box.highlight { border-color: var(--accent1); color: var(--accent1); font-weight: 700; }
+    .arch-arrow { color: var(--muted); font-size: 18px; }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: rgba(99,102,241,.15); color: var(--accent1); padding: 10px 14px; text-align: left; font-weight: 700; }
+    td { padding: 9px 14px; border-top: 1px solid var(--border); color: var(--muted); }
+    tr:hover td { background: rgba(255,255,255,0.03); }
+    .check { color: var(--accent4); }
+    .warn  { color: var(--accent3); }
+
+    /* ── Slide 1 hero ── */
+    #slide1 {
+      background: radial-gradient(ellipse at 30% 50%, rgba(99,102,241,.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(34,211,238,.08) 0%, transparent 50%),
+                  var(--bg);
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1.2fr 1fr; gap: 60px; align-items: center;
+    }
+    .stats-panel { display: flex; flex-direction: column; gap: 14px; }
+    .stat-row {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px 20px; display: flex; align-items: center; gap: 16px;
+    }
+    .stat-val { font-size: 24px; font-weight: 800; }
+    .stat-label { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<div class="slides">
+
+  <!-- ═══════════════════════════ SLIDE 1 – TITLE ═══════════════════════════ -->
+  <div class="slide active" id="slide1">
+    <div class="hero-grid">
+      <div>
+        <div class="label">CA-II · DevOps Case Study</div>
+        <h1>DevOps in <span class="gradient-text">Production</span></h1>
+        <p class="subtitle">End-to-end CI/CD pipeline, containerization,<br/>configuration management &amp; monitoring.</p>
+        <div class="author-tag">👤 Bishwajeet S &nbsp;|&nbsp; B.Tech</div>
+        <div style="margin-top:28px; display:flex; gap:12px; flex-wrap:wrap;">
+          <div class="badge purple">GitHub Actions</div>
+          <div class="badge cyan">Docker + Kubernetes</div>
+          <div class="badge green">Prometheus + Grafana</div>
+          <div class="badge amber">Ansible</div>
+        </div>
+      </div>
+      <div class="stats-panel">
+        <div class="stat-row">
+          <span style="font-size:28px;">🚀</span>
+          <div>
+            <div class="stat-val" style="color:var(--accent1);">5</div>
+            <div class="stat-label">Tasks Completed</div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <span style="font-size:28px;">🐳</span>
+          <div>
+            <div class="stat-val" style="color:var(--accent2);">Multi-stage</div>
+            <div class="stat-label">Docker Build</div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <span style="font-size:28px;">♾️</span>
+          <div>
+            <div class="stat-val" style="color:var(--accent4);">Zero Downtime</div>
+            <div class="stat-label">Rolling Updates</div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <span style="font-size:28px;">📊</span>
+          <div>
+            <div class="stat-val" style="color:var(--accent3);">Real-time</div>
+            <div class="stat-label">Metrics &amp; Dashboards</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ SLIDE 2 – ARCHITECTURE ═══════════════════════════ -->
+  <div class="slide" id="slide2">
+    <div class="label">Slide 2 of 5 · System Design</div>
+    <h2>Architecture Overview</h2>
+    <div class="arch" style="margin-bottom:20px;">
+      <div class="arch-row">
+        <div class="arch-box highlight">👨‍💻 Developer Push (GitHub)</div>
+      </div>
+      <div class="arch-row"><span class="arch-arrow">↓  GitHub Actions CI/CD Trigger  ↓</span></div>
+      <div class="arch-row">
+        <div class="arch-box purple">🧪 Test &amp; Lint</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box" style="border-color:#3b82f6">🐳 Build &amp; Push Docker</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box" style="border-color:var(--accent3)">🔍 Trivy Scan</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box green">🚀 Deploy K8s</div>
+      </div>
+      <div class="arch-row"><span class="arch-arrow">↓</span></div>
+      <div class="arch-row">
+        <div class="arch-box">Pod 1 – Flask</div>
+        <div class="arch-box">Pod 2 – Flask</div>
+        <div class="arch-box">Pod 3 – Flask</div>
+        <div class="arch-box" style="color:var(--accent3)">HPA (2–6 pods)</div>
+      </div>
+      <div class="arch-row"><span class="arch-arrow">↓  /metrics endpoint scraped every 15s  ↓</span></div>
+      <div class="arch-row">
+        <div class="arch-box" style="border-color:var(--accent3)">📈 Prometheus :9090</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box" style="border-color:var(--accent4)">📊 Grafana :3000</div>
+        <span class="arch-arrow">|</span>
+        <div class="arch-box">🖥️ Node Exporter :9100</div>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:8px;">
+      <div class="card purple"><div class="icon">⚙️</div><h3>Config Management</h3><p>Ansible playbook manages users, packages, firewall &amp; Docker across all servers idempotently.</p></div>
+      <div class="card cyan"><div class="icon">☸️</div><h3>Orchestration</h3><p>Kubernetes RollingUpdate ensures zero downtime. HPA auto-scales on CPU &amp; memory.</p></div>
+      <div class="card green"><div class="icon">🔒</div><h3>Security</h3><p>Non-root container user, read-only filesystem, Trivy scan, SSH hardening via Ansible.</p></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ SLIDE 3 – PIPELINE FLOW ═══════════════════════════ -->
+  <div class="slide" id="slide3">
+    <div class="label">Slide 3 of 5 · Task 1 &amp; 2</div>
+    <h2>Pipeline Flow &amp; Configuration</h2>
+    <div class="pipeline">
+      <div class="pipe-step purple">
+        <span class="step-icon">🧪</span>
+        <strong>TEST</strong>
+        <span>flake8 lint</span>
+        <span>pytest</span>
+      </div>
+      <span class="arrow">→</span>
+      <div class="pipe-step blue">
+        <span class="step-icon">🐳</span>
+        <strong>BUILD</strong>
+        <span>Multi-stage</span>
+        <span>Docker build</span>
+      </div>
+      <span class="arrow">→</span>
+      <div class="pipe-step blue">
+        <span class="step-icon">🔍</span>
+        <strong>SCAN</strong>
+        <span>Trivy CVE</span>
+        <span>check</span>
+      </div>
+      <span class="arrow">→</span>
+      <div class="pipe-step orange">
+        <span class="step-icon">🚀</span>
+        <strong>STAGING</strong>
+        <span>develop</span>
+        <span>branch</span>
+      </div>
+      <span class="arrow">→</span>
+      <div class="pipe-step green">
+        <span class="step-icon">🏁</span>
+        <strong>PRODUCTION</strong>
+        <span>main branch</span>
+        <span>rolling update</span>
+      </div>
+    </div>
+    <div class="grid-2" style="gap:20px; margin-top:8px;">
+      <div>
+        <h3 style="font-size:15px; margin-bottom:14px; color:var(--accent2);">🔧 Ansible – 3 Plays</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="card purple">
+            <h3>Play 1 – All Servers</h3>
+            <p>Package install · User creation (<code>devopsuser</code>) · SSH hardening · UFW firewall rules</p>
+          </div>
+          <div class="card cyan">
+            <h3>Play 2 – Web Servers</h3>
+            <p>Docker CE install · App deploy via Docker Compose · Health verification</p>
+          </div>
+          <div class="card green">
+            <h3>Play 3 – Monitoring</h3>
+            <p>Prometheus binary install · systemd service · Grafana APT install</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:15px; margin-bottom:14px; color:var(--accent2);">☸️ Kubernetes YAMLs</h3>
+        <table>
+          <tr><th>File</th><th>Purpose</th></tr>
+          <tr><td><code>deployment.yaml</code></td><td>3 replicas, rolling update</td></tr>
+          <tr><td><code>service.yaml</code></td><td>NodePort :30082</td></tr>
+          <tr><td><code>service.yaml</code></td><td>HPA – 2 to 6 pods</td></tr>
+          <tr><td><code>configmap.yaml</code></td><td>Env config &amp; namespace</td></tr>
+        </table>
+        <div style="margin-top:14px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px;">
+          <div style="font-size:12px; color:var(--muted); margin-bottom:6px;">Rolling Update Command</div>
+          <code style="font-size:12px; display:block; line-height:2;">kubectl set image deployment/devops-case-study-app app=:v2.0.0<br/>kubectl rollout undo deployment/devops-case-study-app</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ SLIDE 4 – MONITORING ═══════════════════════════ -->
+  <div class="slide" id="slide4">
+    <div class="label">Slide 4 of 5 · Task 4</div>
+    <h2>Monitoring &amp; Observability</h2>
+    <div class="grid-2" style="gap:24px;">
+      <div>
+        <div class="card amber" style="margin-bottom:16px;">
+          <div class="icon">📈</div>
+          <h3>Prometheus</h3>
+          <p>Scrapes <code>/metrics</code> endpoint every <strong>15s</strong>. Retains 15 days of data. Monitors Flask app + Node Exporter.</p>
+          <div class="badge amber">:9090</div>
+        </div>
+        <div class="card green">
+          <div class="icon">📊</div>
+          <h3>Grafana Dashboard</h3>
+          <p>Auto-provisioned dashboard with 6 panels covering all KPIs. Refreshes every 30s.</p>
+          <div class="badge green">:3000</div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:14px; color:var(--accent2); margin-bottom:14px;">📐 Dashboard Panels</h3>
+        <table>
+          <tr><th>Panel</th><th>Metric / Query</th></tr>
+          <tr><td>Total Requests</td><td><code>sum(http_requests_total)</code></td></tr>
+          <tr><td>Avg Latency</td><td><code>rate(duration_sum[5m]) / rate(duration_count[5m])</code></td></tr>
+          <tr><td>Error Count</td><td><code>sum(http_errors_total)</code></td></tr>
+          <tr><td>Request Rate</td><td><code>rate(http_requests_total[1m])</code></td></tr>
+          <tr><td>Latency Percentiles</td><td>p50 / p95 / p99 histogram</td></tr>
+          <tr><td>Error Rate Over Time</td><td><code>rate(http_errors_total[5m])</code></td></tr>
+        </table>
+        <div class="card cyan" style="margin-top:14px;">
+          <h3>App Metrics Exposed</h3>
+          <ul>
+            <li><code>http_requests_total</code> – counter by endpoint/status</li>
+            <li><code>http_request_duration_seconds</code> – histogram</li>
+            <li><code>http_errors_total</code> – error counter</li>
+            <li><code>app_info</code> – version gauge</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ SLIDE 5 – CHALLENGES ═══════════════════════════ -->
+  <div class="slide" id="slide5">
+    <div class="label">Slide 5 of 5 · Task 5</div>
+    <h2>Challenges &amp; Lessons Learned</h2>
+    <div class="grid-2" style="gap:20px;">
+      <div>
+        <h3 style="font-size:14px; color:var(--accent3); margin-bottom:14px;">⚡ Challenges Encountered</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="card amber">
+            <h3>Non-root Container Security</h3>
+            <p>Gunicorn needed a writable temp dir. Solved using an <code>emptyDir</code> volume mounted at <code>/tmp</code>.</p>
+          </div>
+          <div class="card amber">
+            <h3>Ansible Windows Limitation</h3>
+            <p>Ansible is Linux-native. Playbooks are written for remote Linux targets, requiring WSL or a CI runner to execute.</p>
+          </div>
+          <div class="card amber">
+            <h3>Grafana Auto-provisioning</h3>
+            <p>Required precise directory structure under <code>/provisioning</code> for datasource &amp; dashboard YAML to load on startup.</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:14px; color:var(--accent4); margin-bottom:14px;">💡 Lessons Learned</h3>
+        <table>
+          <tr><th>Lesson</th><th>Outcome</th></tr>
+          <tr><td>Shift-left security</td><td class="check">Trivy scan in Build stage catches CVEs early</td></tr>
+          <tr><td>IaC = reproducibility</td><td class="check">Ansible ensures identical environments</td></tr>
+          <tr><td>Observability first</td><td class="check">Prometheus metrics reveal bottlenecks instantly</td></tr>
+          <tr><td>maxUnavailable=0</td><td class="check">Zero downtime rolling deploys in K8s</td></tr>
+          <tr><td>Multi-stage builds</td><td class="check">60% smaller final Docker image</td></tr>
+          <tr><td>HPA for resilience</td><td class="check">Auto-scales under traffic spikes</td></tr>
+        </table>
+        <div class="card green" style="margin-top:14px;">
+          <h3>🎯 Key Takeaway</h3>
+          <p>DevOps is not just tooling — it is a culture of <strong>automation, shared responsibility, and continuous feedback</strong> that directly mirrors the Netflix, Amazon, and Capital One case studies.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /slides -->
+
+<!-- Navigation -->
+<nav class="nav">
+  <button onclick="changeSlide(-1)">◀</button>
+  <div class="dot-nav" id="dotNav"></div>
+  <span class="slide-counter" id="counter">1 / 5</span>
+  <button onclick="changeSlide(1)">▶</button>
+</nav>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dotNav = document.getElementById('dotNav');
+  const counter = document.getElementById('counter');
+  let current = 0;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotNav.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotNav.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotNav.children[current].classList.add('active');
+    counter.textContent = `${current + 1} / ${slides.length}`;
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+# ═══════════════════════════════════════════════════════════════
+# Task 4 – Monitoring & Logging
+# Prometheus Configuration
+# DevOps Case Study – Bishwajeet S
+# ═══════════════════════════════════════════════════════════════
+
+global:
+  scrape_interval: 15s          # How often to scrape targets
+  evaluation_interval: 15s      # How often to evaluate rules
+  scrape_timeout: 10s
+  external_labels:
+    monitor: "devops-case-study"
+    environment: "production"
+
+# ─────────────────────────────────────────────
+# Alerting (optional – can connect to AlertManager)
+# ─────────────────────────────────────────────
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []  # Add alertmanager:9093 if using AlertManager
+
+# ─────────────────────────────────────────────
+# Scrape Configurations
+# ─────────────────────────────────────────────
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+    metrics_path: /metrics
+
+  # Flask Application metrics (custom Prometheus metrics)
+  - job_name: "devops-case-study-app"
+    static_configs:
+      - targets: ["app:5000"]
+        labels:
+          service: "flask-app"
+          team: "devops"
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # Node Exporter – host system metrics
+  - job_name: "node-exporter"
+    static_configs:
+      - targets: ["node-exporter:9100"]
+        labels:
+          service: "node"
+    metrics_path: /metrics
+    scrape_interval: 15s

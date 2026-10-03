@@ -1,0 +1,35 @@
+﻿=== Initial deployment ===
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES                                       SELECTOR
+devops-case-study-app   3/3     3            3           3m30s   app          bishwajeets11/devops-case-study-app:v1.0.0   app=devops-case-study-app
+NAME                                     READY   STATUS    RESTARTS   AGE
+devops-case-study-app-66cbcb846f-8dxbf   1/1     Running   0          3m30s
+devops-case-study-app-66cbcb846f-9kf4z   1/1     Running   0          3m30s
+devops-case-study-app-66cbcb846f-9pnrm   1/1     Running   0          3m30s
+deployment.apps/devops-case-study-app 
+REVISION  CHANGE-CAUSE
+1         <none>
+
+
+=== Rolling update to v2.0.0 ===
+deployment.apps/devops-case-study-app image updated
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 old replicas are pending termination...
+deployment "devops-case-study-app" successfully rolled out
+deployment.apps/devops-case-study-app 
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+
+NAME                                     READY   STATUS        RESTARTS   AGE
+devops-case-study-app-66cbcb846f-9kf4z   1/1     Terminating   0          4m9s
+devops-case-study-app-7cf584d99b-d7bld   1/1     Running       0          13s
+devops-case-study-app-7cf584d99b-nb29c   1/1     Running       0          26s
+devops-case-study-app-7cf584d99b-pg7vb   1/1     Running       0          39s

@@ -1,0 +1,107 @@
+# ═══════════════════════════════════════════════════════════════
+# Task 4 – Monitoring & Logging
+# Docker Compose – Full Monitoring Stack
+# DevOps Case Study – Bishwajeet S
+#
+# Services: Flask App + Prometheus + Grafana + Node Exporter
+# Usage: docker-compose up -d
+# ═══════════════════════════════════════════════════════════════
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+services:
+  # ─────────────────────────────────────────────
+  # Flask Application
+  # ─────────────────────────────────────────────
+  app:
+    build:
+      context: ../app
+      dockerfile: Dockerfile
+    image: bishwajeets11/devops-case-study-app:latest
+    container_name: devops-app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    labels:
+      - "prometheus.scrape=true"
+      - "prometheus.port=5000"
+      - "prometheus.path=/metrics"
+
+  # ─────────────────────────────────────────────
+  # Prometheus – Metrics Collection
+  # Access: http://localhost:9090
+  # ─────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+      - --web.enable-admin-api
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - monitoring
+    depends_on:
+      - app
+
+  # ─────────────────────────────────────────────
+  # Grafana – Dashboard
+  # Access: http://localhost:3000
+  # Default credentials: admin / devops123
+  # ─────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=devops123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_DOMAIN=localhost
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+  # ─────────────────────────────────────────────
+  # Node Exporter – Host Metrics
+  # Note: host network/pid mode not available on
+  # Windows Docker Desktop — using bridge mode.
+  # ─────────────────────────────────────────────
+  node-exporter:
+    image: prom/node-exporter:v1.8.0
+    container_name: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring

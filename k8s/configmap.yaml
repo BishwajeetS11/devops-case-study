@@ -1,0 +1,24 @@
+# ═══════════════════════════════════════════════════════════════
+# Task 3 – Containerization & Orchestration
+# Kubernetes ConfigMap & Namespace
+# DevOps Case Study – Bishwajeet S
+# ═══════════════════════════════════════════════════════════════
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devops-demo
+  labels:
+    name: devops-demo
+    environment: production
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devops-case-study-config
+  namespace: default
+data:
+  FLASK_ENV: "production"
+  LOG_LEVEL: "INFO"
+  APP_PORT: "5000"

@@ -1,0 +1,65 @@
+﻿=== Rollback to previous revision ===
+deployment.apps/devops-case-study-app rolled back
+Waiting for deployment "devops-case-study-app" rollout to finish: 0 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "devops-case-study-app" rollout to finish: 1 old replicas are pending termination...
+deployment "devops-case-study-app" successfully rolled out
+deployment.apps/devops-case-study-app 
+REVISION  CHANGE-CAUSE
+2         <none>
+3         <none>
+
+NAME                                     READY   STATUS        RESTARTS   AGE
+devops-case-study-app-66cbcb846f-ntwl5   1/1     Running       0          13s
+devops-case-study-app-66cbcb846f-q6r2x   1/1     Running       0          26s
+devops-case-study-app-66cbcb846f-snklp   1/1     Running       0          39s
+devops-case-study-app-7cf584d99b-nb29c   1/1     Terminating   0          65s
+Name:                   devops-case-study-app
+Namespace:              default
+CreationTimestamp:      Sat, 03 Oct 2026 23:11:56 +0530
+Labels:                 app=devops-case-study-app
+                        managed-by=kubectl
+                        version=1.0.0
+Annotations:            deployment.kubernetes.io/revision: 3
+                        description: DevOps Case Study Flask Microservice
+Selector:               app=devops-case-study-app
+Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  0 max unavailable, 1 max surge
+Pod Template:
+  Labels:       app=devops-case-study-app
+                version=1.0.0
+  Annotations:  prometheus.io/path: /metrics
+                prometheus.io/port: 5000
+                prometheus.io/scrape: true
+  Containers:
+   app:
+    Image:      bishwajeets11/devops-case-study-app:v1.0.0
+    Port:       5000/TCP (http)
+    Host Port:  0/TCP (http)
+    Limits:
+      cpu:     500m
+      memory:  256Mi
+    Requests:
+      cpu:      100m
+      memory:   128Mi
+    Liveness:   http-get http://:5000/health delay=30s timeout=5s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:5000/health delay=10s timeout=3s period=5s #success=1 #failure=3
+    Environment:
+      FLASK_ENV:      production
+      POD_NAME:        (v1:metadata.name)
+      POD_NAMESPACE:   (v1:metadata.namespace)
+      NODE_NAME:       (v1:spec.nodeName)
+    Mounts:
+      /tmp from tmp-dir (rw)
+  Volumes:

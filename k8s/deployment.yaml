@@ -1,0 +1,154 @@
+# ═══════════════════════════════════════════════════════════════
+# Task 3 – Containerization & Orchestration
+# Kubernetes Deployment Manifest
+# DevOps Case Study – Bishwajeet S
+#
+# Rolling Update Strategy configured below.
+# Rollback: kubectl rollout undo deployment/devops-case-study-app
+# ═══════════════════════════════════════════════════════════════
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-case-study-app
+  namespace: default
+  labels:
+    app: devops-case-study-app
+    version: "1.0.0"
+    managed-by: kubectl
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    description: "DevOps Case Study Flask Microservice"
+spec:
+  replicas: 3
+
+  # ──────────────────────────────────────────
+  # Rolling Update Strategy
+  # maxSurge: 1 new pod at a time
+  # maxUnavailable: 0 ensures zero downtime
+  # ──────────────────────────────────────────
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  selector:
+    matchLabels:
+      app: devops-case-study-app
+
+  template:
+    metadata:
+      labels:
+        app: devops-case-study-app
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics"
+
+    spec:
+      # Security context at pod level
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      # Graceful termination
+      terminationGracePeriodSeconds: 30
+
+      containers:
+        - name: app
+          image: bishwajeets11/devops-case-study-app:v1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5000
+              protocol: TCP
+
+          # ──────────────────────────────────
+          # Resource Limits & Requests
+          # ──────────────────────────────────
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          # ──────────────────────────────────
+          # Environment Variables
+          # ──────────────────────────────────
+          env:
+            - name: FLASK_ENV
+              value: "production"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+
+          # ──────────────────────────────────
+          # Liveness Probe
+          # Restarts container if app is dead
+          # ──────────────────────────────────
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # ──────────────────────────────────
+          # Readiness Probe
+          # Removes from LB if not ready
+          # ──────────────────────────────────
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          # Container-level security
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          # Writable /tmp for gunicorn
+          volumeMounts:
+            - name: tmp-dir
+              mountPath: /tmp
+
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}
+
+      # Spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - devops-case-study-app
+                topologyKey: kubernetes.io/hostname

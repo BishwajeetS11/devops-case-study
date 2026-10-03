@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GitHub Actions CI/CD Pipeline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 1600px; height: 900px;
+      font-family: Inter, sans-serif;
+      background: radial-gradient(ellipse at 20% 0%, #1e1b4b 0%, #0b1220 45%);
+      color: #f1f5f9;
+      padding: 48px 56px;
+    }
+    h1 { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; }
+    .sub { color: #94a3b8; margin-top: 8px; font-size: 16px; }
+    .flow { display: flex; align-items: stretch; gap: 14px; margin-top: 56px; }
+    .card {
+      flex: 1; border-radius: 16px; padding: 22px 18px;
+      border: 1px solid rgba(255,255,255,.1); background: #111827;
+      min-height: 280px;
+    }
+    .card h2 { font-size: 18px; margin-bottom: 8px; }
+    .card .when { font-size: 12px; color: #67e8f9; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .card ul { color: #cbd5e1; font-size: 14px; line-height: 1.7; padding-left: 18px; }
+    .arrow { align-self: center; font-size: 28px; color: #64748b; }
+    .t { border-top: 4px solid #818cf8; }
+    .b { border-top: 4px solid #38bdf8; }
+    .s { border-top: 4px solid #f59e0b; }
+    .p { border-top: 4px solid #34d399; }
+    .note {
+      margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .note div {
+      background: #111827; border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 16px 20px; font-size: 14px; color: #cbd5e1;
+    }
+    .note strong { color: #f8fafc; }
+  </style>
+</head>
+<body>
+  <h1>GitHub Actions CI/CD Pipeline</h1>
+  <p class="sub">DevOps Case Study — Bishwajeet S &nbsp;·&nbsp; workflow: <code>.github/workflows/ci-cd.yml</code></p>
+
+  <div class="flow">
+    <div class="card t">
+      <div class="when">Every push / PR</div>
+      <h2>1. Test</h2>
+      <ul>
+        <li>Checkout repository</li>
+        <li>Python 3.11 + pip cache</li>
+        <li>flake8 lint</li>
+        <li>pytest unit tests</li>
+      </ul>
+    </div>
+    <div class="arrow">→</div>
+    <div class="card b">
+      <div class="when">After Test passes</div>
+      <h2>2. Build</h2>
+      <ul>
+        <li>Multi-stage Docker build</li>
+        <li>Tag: sha, branch, latest</li>
+        <li>Push to Docker Hub</li>
+        <li>Trivy CVE scan (shift-left)</li>
+      </ul>
+    </div>
+    <div class="arrow">→</div>
+    <div class="card s">
+      <div class="when">Only branch: develop</div>
+      <h2>3. Staging</h2>
+      <ul>
+        <li>Decode kubeconfig secret</li>
+        <li>kubectl apply -f k8s/</li>
+        <li>Wait for rollout status</li>
+      </ul>
+    </div>
+    <div class="arrow">→</div>
+    <div class="card p">
+      <div class="when">Only branch: main</div>
+      <h2>4. Production</h2>
+      <ul>
+        <li>kubectl set image (rolling)</li>
+        <li>maxUnavailable = 0</li>
+        <li>Health check pods + service</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">
+    <div><strong>Notify job</strong> runs only if any prior job fails — it is not a success stage after production.</div>
+    <div><strong>Staging and Production are parallel after Build</strong> and gated by branch, not a single linear path.</div>
+  </div>
+</body>
+</html>
